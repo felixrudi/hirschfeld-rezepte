@@ -9,6 +9,20 @@
 
   import { initialRecipes, initialLeftovers, initialFreezerItems } from './lib/recipesData.js';
 
+  let isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('food_auth') === 'true';
+  let passwordInput = '';
+  let authError = false;
+
+  function checkPassword() {
+    if (passwordInput === 'hirschfeld2026' || passwordInput === 'hirschfeld') {
+      isAuthenticated = true;
+      localStorage.setItem('food_auth', 'true');
+      authError = false;
+    } else {
+      authError = true;
+    }
+  }
+
   let recipes = initialRecipes;
   let leftovers = initialLeftovers;
   let freezerItems = initialFreezerItems;
@@ -51,9 +65,30 @@
 </script>
 
 <div class="app-container">
-  <Header {activeTab} {selectTab} />
+  {#if !isAuthenticated}
+    <div class="auth-overlay">
+      <div class="auth-card">
+        <div class="auth-icon">🔒</div>
+        <h2>Hirschfeld Rezepte</h2>
+        <p>Bitte Passwort eingeben, um fortzufahren:</p>
+        <div class="auth-form">
+          <input 
+            type="password" 
+            placeholder="Passwort..." 
+            bind:value={passwordInput}
+            on:keydown={(e) => e.key === 'Enter' && checkPassword()}
+          />
+          <button class="btn-auth" on:click={checkPassword}>Freischalten 🔑</button>
+        </div>
+        {#if authError}
+          <div class="auth-error">❌ Falsches Passwort</div>
+        {/if}
+      </div>
+    </div>
+  {:else}
+    <Header {activeTab} {selectTab} />
 
-  <main class="main-content">
+    <main class="main-content">
     {#if activeTab === 'galerie'}
       <div class="filter-toolbar">
         <div class="search-box">
@@ -123,9 +158,89 @@
       onClose={closeModal} 
     />
   {/if}
+  {/if}
 </div>
 
 <style>
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: #14100e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+
+  .auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-gold);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8);
+  }
+
+  .auth-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+  }
+
+  .auth-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin-bottom: 6px;
+  }
+
+  .auth-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .auth-form input {
+    background: #191513;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text-main);
+    font-size: 15px;
+    text-align: center;
+    outline: none;
+  }
+
+  .auth-form input:focus {
+    border-color: var(--accent-gold);
+  }
+
+  .btn-auth {
+    background: var(--accent-gold);
+    color: #161210;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .auth-error {
+    color: var(--accent-red);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 14px;
+  }
+
   .app-container {
     min-height: 100vh;
     display: flex;
