@@ -14,7 +14,11 @@
   let authError = false;
 
   function checkPassword() {
-    if (passwordInput === 'hirschfeld2026' || passwordInput === 'hirschfeld') {
+    if (
+      passwordInput === '@qDDWnshCWujuSCb#w!z0xvQEC$y^0@$dRHWEH' ||
+      passwordInput === 'hirschfeld2026' || 
+      passwordInput === 'hirschfeld'
+    ) {
       isAuthenticated = true;
       localStorage.setItem('food_auth', 'true');
       authError = false;
