@@ -46,3 +46,59 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-gold);
 }
+
+.category-pills, .filter-chips, .group-by-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.pill, .chip, .group-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill:hover, .chip:hover, .group-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-main);
+}
+
+.pill.active, .chip.active, .group-btn.active {
+  background: var(--accent-gold);
+  color: #181412;
+  border-color: var(--accent-gold);
+  font-weight: 600;
+  box-shadow: 0 0 10px var(--accent-gold-glow);
+}
+
+.group-label {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.recipe-group-section {
+  margin-bottom: 32px;
+}
+
+.group-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

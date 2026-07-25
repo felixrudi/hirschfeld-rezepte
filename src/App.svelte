@@ -59,18 +59,64 @@
   }
 
   let searchQuery = "";
-  let activeChip = "all";
+  let selectedCategory = "all";
+  let activeFilterChips = [];
+  let groupBy = "category";
+
+  function toggleChip(chip) {
+    if (activeFilterChips.includes(chip)) {
+      activeFilterChips = activeFilterChips.filter(c => c !== chip);
+    } else {
+      activeFilterChips = [...activeFilterChips, chip];
+    }
+  }
 
   $: filteredRecipes = recipes.filter(r => {
     const matchesSearch = r.title.toLowerCase().includes(searchQuery.toLowerCase());
-    let matchesChip = true;
+    const matchesCat = selectedCategory === "all" || r.category === selectedCategory;
 
-    if (activeChip === "protein") matchesChip = r.tags.includes("protein");
-    if (activeChip === "quick") matchesChip = r.tags.includes("quick");
-    if (activeChip === "freeze") matchesChip = r.tags.includes("freeze");
+    let matchesChips = true;
+    if (activeFilterChips.includes("protein") && (r.proteinPortion || 0) < 25) matchesChips = false;
+    if (activeFilterChips.includes("quick") && (r.prepTimeMin || 99) > 30) matchesChips = false;
+    if (activeFilterChips.includes("batch") && !r.batch) matchesChips = false;
+    if (activeFilterChips.includes("freeze") && !r.einfrierbar) matchesChips = false;
+    if (activeFilterChips.includes("top") && (r.rating || 0) < 5) matchesChips = false;
 
-    return matchesSearch && matchesChip;
+    return matchesSearch && matchesCat && matchesChips;
   });
+
+  $: groupedRecipes = (() => {
+    if (groupBy === "none") {
+      return [{ groupName: "Alle Rezepte", items: filteredRecipes }];
+    }
+    if (groupBy === "category") {
+      const groups = {};
+      filteredRecipes.forEach(r => {
+        const cat = r.category || 'Hauptmahlzeit';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(r);
+      });
+      return Object.keys(groups).map(cat => ({ groupName: cat, items: groups[cat] }));
+    }
+    if (groupBy === "batch") {
+      const batchList = filteredRecipes.filter(r => r.batch);
+      const singleList = filteredRecipes.filter(r => !r.batch);
+      const res = [];
+      if (batchList.length) res.push({ groupName: "📦 Batch Prep (Vorkochen)", items: batchList });
+      if (singleList.length) res.push({ groupName: "🍳 Einzeln / Schnell", items: singleList });
+      return res;
+    }
+    if (groupBy === "rating") {
+      const groups = {};
+      filteredRecipes.forEach(r => {
+        const stars = '⭐'.repeat(r.rating || 5);
+        if (!groups[stars]) groups[stars] = [];
+        groups[stars].push(r);
+      });
+      return Object.keys(groups).sort().reverse().map(s => ({ groupName: s, items: groups[s] }));
+    }
+    return [{ groupName: "Alle", items: filteredRecipes }];
+  })();
 </script>
 
 <div class="app-container">
@@ -109,39 +155,60 @@
           />
         </div>
 
-        <div class="filter-chips">
-          <button 
-            class="chip {activeChip === 'all' ? 'active' : ''}" 
-            on:click={() => activeChip = 'all'}
-          >
+        <div class="category-pills">
+          <button class="pill {selectedCategory === 'all' ? 'active' : ''}" on:click={() => selectedCategory = 'all'}>
             Alle ({recipes.length})
           </button>
-          <button 
-            class="chip {activeChip === 'protein' ? 'active' : ''}" 
-            on:click={() => activeChip = 'protein'}
-          >
-            💪 High Protein
+          <button class="pill {selectedCategory === 'Frühstück' ? 'active' : ''}" on:click={() => selectedCategory = 'Frühstück'}>
+            🍳 Frühstück
           </button>
-          <button 
-            class="chip {activeChip === 'quick' ? 'active' : ''}" 
-            on:click={() => activeChip = 'quick'}
-          >
-            ⚡ Schnell (&lt;30m)
+          <button class="pill {selectedCategory === 'Hauptmahlzeit' ? 'active' : ''}" on:click={() => selectedCategory = 'Hauptmahlzeit'}>
+            🍲 Hauptmahlzeiten
           </button>
-          <button 
-            class="chip {activeChip === 'freeze' ? 'active' : ''}" 
-            on:click={() => activeChip = 'freeze'}
-          >
+          <button class="pill {selectedCategory === 'Basics' ? 'active' : ''}" on:click={() => selectedCategory = 'Basics'}>
+            🥪 Basics & Snacks
+          </button>
+        </div>
+
+        <div class="filter-chips">
+          <button class="chip {activeFilterChips.includes('protein') ? 'active' : ''}" on:click={() => toggleChip('protein')}>
+            💪 High Protein (&ge;25g)
+          </button>
+          <button class="chip {activeFilterChips.includes('quick') ? 'active' : ''}" on:click={() => toggleChip('quick')}>
+            ⚡ Schnell (&le;30m)
+          </button>
+          <button class="chip {activeFilterChips.includes('batch') ? 'active' : ''}" on:click={() => toggleChip('batch')}>
+            📦 Batch Prep
+          </button>
+          <button class="chip {activeFilterChips.includes('freeze') ? 'active' : ''}" on:click={() => toggleChip('freeze')}>
             🧊 Einfrierbar
           </button>
+          <button class="chip {activeFilterChips.includes('top') ? 'active' : ''}" on:click={() => toggleChip('top')}>
+            ⭐ 5 Sterne
+          </button>
+        </div>
+
+        <div class="group-by-selector">
+          <span class="group-label">📂 Gruppieren nach:</span>
+          <button class="group-btn {groupBy === 'category' ? 'active' : ''}" on:click={() => groupBy = 'category'}>Kategorie</button>
+          <button class="group-btn {groupBy === 'batch' ? 'active' : ''}" on:click={() => groupBy = 'batch'}>Batch Prep</button>
+          <button class="group-btn {groupBy === 'rating' ? 'active' : ''}" on:click={() => groupBy = 'rating'}>Rating</button>
+          <button class="group-btn {groupBy === 'none' ? 'active' : ''}" on:click={() => groupBy = 'none'}>Keine</button>
         </div>
       </div>
 
-      <div class="recipe-grid">
-        {#each filteredRecipes as recipe}
-          <RecipeCard {recipe} onCook={handleCook} />
-        {/each}
-      </div>
+      {#each groupedRecipes as group}
+        {#if group.items.length > 0}
+          <div class="recipe-group-section">
+            <h3 class="group-title">{group.groupName} ({group.items.length})</h3>
+            <div class="recipe-grid">
+              {#each group.items as recipe}
+                <RecipeCard {recipe} onCook={handleCook} />
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {/each}
     {:else if activeTab === 'fridge'}
       <FridgeTracker 
         {leftovers} 
