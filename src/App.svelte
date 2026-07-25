@@ -9,7 +9,10 @@
 
   import { initialRecipes, initialLeftovers, initialFreezerItems } from './lib/recipesData.js';
 
-  let isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('food_auth') === 'true';
+  let isAuthenticated = typeof window !== 'undefined' && (
+    localStorage.getItem('food_auth') === 'true' || 
+    document.cookie.includes('food_auth=true')
+  );
   let passwordInput = '';
   let authError = false;
 
@@ -21,6 +24,8 @@
     ) {
       isAuthenticated = true;
       localStorage.setItem('food_auth', 'true');
+      // Set 1-Year (365 Days) Persistent Cookie for mobile devices
+      document.cookie = "food_auth=true; max-age=31536000; path=/; sameSite=Lax; secure";
       authError = false;
     } else {
       authError = true;
