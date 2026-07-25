@@ -1,6 +1,7 @@
 <script>
   export let recipe;
   export let onCook;
+  export let onEdit = () => {};
 </script>
 
 <div class="recipe-card" on:click={() => onCook(recipe.id)}>
@@ -32,7 +33,10 @@
       </div>
     </div>
 
-    <button class="btn-cook">Rezept Kochen & Skalieren 👨‍🍳</button>
+    <div class="card-actions">
+      <button class="btn-cook" on:click|stopPropagation={() => onCook(recipe.id)}>Rezept Kochen & Skalieren 👨‍🍳</button>
+      <button class="btn-edit" on:click|stopPropagation={() => onEdit(recipe)}>✏️</button>
+    </div>
   </div>
 </div>
 
@@ -132,16 +136,38 @@
     text-transform: uppercase;
   }
 
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
   .btn-cook {
+    flex: 1;
     background: var(--accent-gold);
-    color: #161210;
-    padding: 8px 16px;
+    color: #181412;
     border: none;
+    padding: 10px;
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
-    width: 100%;
-    margin-top: 14px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-edit {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .btn-edit:hover {
+    border-color: var(--accent-gold);
+    background: var(--bg-card-hover);
   }
 </style>

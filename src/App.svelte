@@ -6,6 +6,7 @@
   import FreezerTracker from './lib/components/FreezerTracker.svelte';
   import Wochenplaner from './lib/components/Wochenplaner.svelte';
   import SmartShoppingList from './lib/components/SmartShoppingList.svelte';
+  import RecipeEditModal from './lib/components/RecipeEditModal.svelte';
 
   import { initialRecipes, initialLeftovers, initialFreezerItems } from './lib/recipesData.js';
 
@@ -38,6 +39,30 @@
 
   let activeTab = 'galerie';
   let activeRecipeId = null;
+  let isEditModalOpen = false;
+  let editingRecipe = null;
+
+  function openNewRecipeModal() {
+    editingRecipe = null;
+    isEditModalOpen = true;
+  }
+
+  function openEditRecipeModal(recipeToEdit) {
+    editingRecipe = recipeToEdit;
+    isEditModalOpen = true;
+  }
+
+  function handleSaveRecipe(e) {
+    const saved = e.detail;
+    const existingIdx = recipes.findIndex(r => r.id === saved.id);
+    if (existingIdx >= 0) {
+      recipes[existingIdx] = saved;
+      recipes = [...recipes];
+    } else {
+      recipes = [saved, ...recipes];
+    }
+    isEditModalOpen = false;
+  }
 
   $: activeRecipe = recipes.find(r => r.id === activeRecipeId);
 
@@ -146,13 +171,16 @@
     <main class="main-content">
     {#if activeTab === 'galerie'}
       <div class="filter-toolbar">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input 
-            type="text" 
-            placeholder="Rezept oder Zutat suchen..." 
-            bind:value={searchQuery}
-          />
+        <div class="search-box-row">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Rezept oder Zutat suchen..." 
+              bind:value={searchQuery}
+            />
+          </div>
+          <button class="btn-create-recipe" on:click={openNewRecipeModal}>➕ Neues Rezept</button>
         </div>
 
         <div class="category-pills">
@@ -203,7 +231,7 @@
             <h3 class="group-title">{group.groupName} ({group.items.length})</h3>
             <div class="recipe-grid">
               {#each group.items as recipe}
-                <RecipeCard {recipe} onCook={handleCook} />
+                <RecipeCard {recipe} onCook={handleCook} onEdit={openEditRecipeModal} />
               {/each}
             </div>
           </div>
@@ -227,6 +255,13 @@
       <SmartShoppingList />
     {/if}
   </main>
+
+  <RecipeEditModal 
+    isOpen={isEditModalOpen} 
+    recipe={editingRecipe} 
+    on:close={() => isEditModalOpen = false} 
+    on:save={handleSaveRecipe} 
+  />
 
   {#if activeRecipe}
     <KitchenStepperModal 
