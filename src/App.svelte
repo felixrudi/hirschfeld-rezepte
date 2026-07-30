@@ -10,10 +10,7 @@
 
   import { initialRecipes, initialLeftovers, initialFreezerItems } from './lib/recipesData.js';
 
-  let isAuthenticated = typeof window !== 'undefined' && (
-    localStorage.getItem('food_auth') === 'true' || 
-    document.cookie.includes('food_auth=true')
-  );
+  let isAuthenticated = true;
   let passwordInput = '';
   let authError = false;
 
