@@ -1,43 +1,102 @@
-# Svelte + Vite
+# hirschfeld-rezepte
 
-This template should help get you started developing with Svelte in Vite.
+Rezept- und Vorratsapp unter **[food.hirschfeld.at](https://food.hirschfeld.at)**.
+Svelte + Vite, statisch gebaut, hinter Authelia-SSO auf der Hetzner-Box.
 
-## Recommended IDE Setup
+Zeigt Felix' Rezepte mit Nährwerten, Filtern und einem **Kochmodus**, der ein Rezept in
+echte Einzelschritte zerlegt statt eine Textwand anzuzeigen. Dazu Kühlschrank- und
+Tiefkühler-Tracker, Wochenplaner und eine abgeleitete Einkaufsliste.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+---
 
-## Need an official Svelte framework?
+## Woher die Rezepte kommen
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+Das ist die wichtigste Sache im Repo, weil sie nicht offensichtlich ist:
 
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
 ```
+Obsidian Cloud Vault/Rezepte/**.md   (Quelle der Wahrheit — Markdown + Frontmatter)
+            │
+            │  scripts/generate_recipes_data.py
+            ▼
+src/lib/recipesData.js               (AUTO-GENERATED, nicht von Hand editieren)
+            │
+            ▼
+      Vite-Build → dist/ → Docker/nginx
+```
+
+`recipesData.js` exportiert `initialRecipes`, `initialLeftovers` und `initialFreezerItems`.
+Alle drei sind **statisch in den Build eingebacken**. Die App spricht zur Laufzeit mit keinem
+Backend.
+
+**Rezepte ändern heißt: Markdown im Vault ändern, Generator laufen lassen, neu bauen.**
+
+```bash
+python3 scripts/generate_recipes_data.py
+npm run build
+```
+
+Der Generator liest
+`~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Cloud Vault/Rezepte`,
+nimmt den Ordner als Kategorie und das Frontmatter-Feld `titel` als Titel.
+
+---
+
+## Entwicklung
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # → dist/
+```
+
+## Deployment
+
+Docker-Image mit nginx (`Dockerfile` + `nginx.conf`), ausgerollt über Coolify auf die
+Hetzner-Box. Vor dem Bauen den Generator laufen lassen, sonst geht der Vault-Stand nicht mit.
+
+## Authentifizierung
+
+Macht **Authelia**, nicht die App. Der frühere In-App-Passcode ist seit dem SSO-Rollout
+(03.08.2026) deaktiviert — `isAuthenticated` startet auf `true`. Keine zweite Login-Hürde
+einbauen.
+
+---
+
+## Bekannte Grenzen
+
+| Was | Stand |
+|---|---|
+| **Rezept-Editor speichert nicht dauerhaft** | `handleSaveRecipe` ändert nur das In-Memory-Array. Nach einem Reload ist die Änderung weg. Faktisch ein Vorschau-Feature — echte Änderungen gehören in den Vault. |
+| **`src/lib/teableClient.js` ist toter Code** | Wird von keiner Datei importiert. Stammt aus einem früheren Anlauf, die Daten in Teable zu halten (Tabellen Rezepte / Kühlschrank / Tiefkühler / Wochenplan). Entweder anschließen oder löschen — aktuell ist es eine Falle für den nächsten Leser. |
+| **Kühlschrank & Tiefkühler sind statisch** | Kommen wie die Rezepte aus dem generierten File, kein Bestandsabgleich zur Laufzeit. |
+
+## Ernährungs-Constraint
+
+**Kein Eiweiß / Eiklar.** Unverträglichkeit — keine Rezepte mit Rührei oder Eiweiß anlegen
+oder vorschlagen.
+
+---
+
+## Struktur
+
+```
+src/
+  App.svelte                      Zustand, Filter, Modals
+  lib/
+    recipesData.js                AUTO-GENERATED — nicht editieren
+    teableClient.js               ungenutzt (siehe oben)
+    components/
+      RecipeCard.svelte           Kachel in der Galerie
+      KitchenStepperModal.svelte  Kochmodus mit Einzelschritten
+      RecipeEditModal.svelte      Editor (flüchtig)
+      FridgeTracker.svelte        Kühlschrank
+      FreezerTracker.svelte       Tiefkühler
+      Wochenplaner.svelte         Wochenplan
+      SmartShoppingList.svelte    abgeleitete Einkaufsliste
+      Header.svelte
+scripts/
+  generate_recipes_data.py        Vault → recipesData.js
+```
+
+Projektdoku bei Henry: `modules/projekte-doku/hirschfeld-rezepte.md`,
+Arbeitsstand: `modules/werkbank/hirschfeld-rezepte/stand.md`.
