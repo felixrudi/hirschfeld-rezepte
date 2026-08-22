@@ -1867,6 +1867,152 @@ export const initialRecipes = [
     ]
   },
   {
+    "id": "sesamhuhn-an-karottenpueree-batch-x-3",
+    "title": "Sesamhuhn an Karottenpüree",
+    "category": "Hauptmahlzeit",
+    "rating": 4,
+    "prepTimeMin": 30,
+    "kcalPortion": 820,
+    "proteinPortion": 56,
+    "batch": true,
+    "portionen": 3,
+    "einfrierbar": false,
+    "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
+    "tags": [
+      "protein",
+      "prep",
+      "quick"
+    ],
+    "baseIngredientName": "Hähnchenbrustfilet",
+    "baseIngredientQty": 500.0,
+    "unit": "g",
+    "checklist": [
+      {
+        "name": "*Sesamhuhn**",
+        "baseQty": 1,
+        "unit": "x"
+      },
+      {
+        "name": "Hähnchenbrustfilet",
+        "baseQty": 500.0,
+        "unit": "g"
+      },
+      {
+        "name": "Eier (verquirlt)",
+        "baseQty": 2.0,
+        "unit": "x"
+      },
+      {
+        "name": "Milch",
+        "baseQty": 2.0,
+        "unit": "EL"
+      },
+      {
+        "name": "Mehl",
+        "baseQty": 70.0,
+        "unit": "g"
+      },
+      {
+        "name": "Sesam",
+        "baseQty": 6.0,
+        "unit": "EL"
+      },
+      {
+        "name": "Öl (zum Braten)",
+        "baseQty": 6.0,
+        "unit": "EL"
+      },
+      {
+        "name": "Salz & Pfeffer",
+        "baseQty": 1,
+        "unit": "x"
+      },
+      {
+        "name": "*Karottenpüree**",
+        "baseQty": 1,
+        "unit": "x"
+      },
+      {
+        "name": "Karotten",
+        "baseQty": 500.0,
+        "unit": "g"
+      },
+      {
+        "name": "iter Gemüsebrühe (aus der [[Selbstgemachte Gemüsebrüh-Paste (15 Lit. Brühe)|Brüh-Paste]])",
+        "baseQty": 1.0,
+        "unit": "L"
+      },
+      {
+        "name": "½ EL Butter",
+        "baseQty": 1.0,
+        "unit": "x"
+      },
+      {
+        "name": "Zucker",
+        "baseQty": 1.0,
+        "unit": "TL"
+      },
+      {
+        "name": "Sahne",
+        "baseQty": 2.0,
+        "unit": "EL"
+      },
+      {
+        "name": "Salz & Pfeffer",
+        "baseQty": 1,
+        "unit": "x"
+      },
+      {
+        "name": "Cayennepfeffer",
+        "baseQty": 1.0,
+        "unit": "Prise"
+      },
+      {
+        "name": "Muskat",
+        "baseQty": 1.0,
+        "unit": "Prise"
+      }
+    ],
+    "steps": [
+      {
+        "header": "Fleisch schneiden (5 Min)",
+        "body": "Hähnchenbrust trockentupfen und in Streifen schneiden (ca. 1 cm breit — dünner wird die Panade trocken, dicker gart der Kern nicht durch).",
+        "parallel": null,
+        "timer": 300
+      },
+      {
+        "header": "Panierstraße aufbauen (3 Min)",
+        "body": "Eier verquirlen, mit der Milch verrühren, mit Salz und Pfeffer würzen. In einem zweiten Teller Mehl und Sesam vermischen.",
+        "parallel": null,
+        "timer": 180
+      },
+      {
+        "header": "Panieren",
+        "body": "Fleischstreifen erst durch das Ei ziehen, gut abtropfen lassen, dann in der Mehl-Sesam-Mischung wälzen und andrücken.",
+        "parallel": null,
+        "timer": null
+      },
+      {
+        "header": "Braten (6–8 Min)",
+        "body": "Öl in der Pfanne stark erhitzen. Streifen **portionsweise** knusprig braten — zu viel auf einmal und der Sesam dünstet statt zu rösten. Auf Küchenpapier abtropfen lassen, im Ofen bei 80 °C warm stellen.\n**Karottenpüree** (läuft parallel)",
+        "parallel": null,
+        "timer": 360
+      },
+      {
+        "header": "Kochen (12 Min)",
+        "body": "Karotten schälen, in Scheiben schneiden, in der Gemüsebrühe weich kochen.",
+        "parallel": null,
+        "timer": 720
+      },
+      {
+        "header": "Stampfen & abschmecken (5 Min)",
+        "body": "Abtropfen lassen (Brühe auffangen — falls das Püree zu fest wird, löffelweise zurückgeben), fein stampfen. Butter, Zucker und Sahne unterrühren. Mit Salz, Pfeffer, Cayennepfeffer und Muskat abschmecken.\n---",
+        "parallel": null,
+        "timer": 300
+      }
+    ]
+  },
+  {
     "id": "pizzateig-wie-beim-italiener-batch-x-4",
     "title": "Pizzateig wie beim Italiener",
     "category": "Basics",
